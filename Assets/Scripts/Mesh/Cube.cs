@@ -182,16 +182,16 @@ public class Cube : MonoBehaviour
         return t;
     }
 
-    private void OnDrawGizmos()
-    {
-        if (_vertices == null) {
-            return;
-        }
-        Gizmos.color = Color.black;
-        for (int i = 0; i < _vertices.Length; i++) {
-            Gizmos.DrawSphere(_vertices[i], 0.1f);
-        }
-    }
+    // private void OnDrawGizmos()
+    // {
+    //     if (_vertices == null) {
+    //         return;
+    //     }
+    //     Gizmos.color = Color.black;
+    //     for (int i = 0; i < _vertices.Length; i++) {
+    //         Gizmos.DrawSphere(_vertices[i], 0.1f);
+    //     }
+    // }
 
     private static int SetQuad(int[] triangles, int i, int v00, int v10, int v01, int v11)
     {

@@ -37,25 +37,26 @@ public class MeshDeformer : MonoBehaviour
 
     public void AddDeformingForce(Vector3 point, float force)
     {
-        Debug.Log(point);
         var xs = new float[_displacedVertices.Length];
+        var ys = new float[_displacedVertices.Length];
         for (int i = 0; i < _displacedVertices.Length; i++)
         {
             xs[i] = _displacedVertices[i].x;
+            ys[i] = _displacedVertices[i].y;
         }
 
-        var closest = xs.OrderBy(v => Math.Abs((long) v - point.x)).First();
-        Debug.Log(closest);
-        SetDeforming(closest, force);
+        var closestX = xs.OrderBy(v => Math.Abs((long) v - point.x)).First();
+        var closestY = ys.OrderBy(v => Math.Abs((long) v - point.y)).First();
+        SetDeforming(closestX,closestY, force);
     }
 
-    private void SetDeforming(float pointX, float force)
+    private void SetDeforming(float pointX, float pointY, float force)
     {
         force = force * Time.deltaTime;
         var idCurrentVectors = new List<int>();
         for (int i = 0; i < _displacedVertices.Length; i++)
         {
-            if (_displacedVertices[i].x == pointX)
+            if (_displacedVertices[i].x == pointX && pointY == _displacedVertices[i].y)
             {
                 idCurrentVectors.Add(i);
             }

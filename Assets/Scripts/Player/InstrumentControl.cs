@@ -29,10 +29,8 @@ public class InstrumentControl : MonoBehaviour
     {
         _inputHandler = inputHandler;
     }
-    private void DragObject(Vector2 deltaPosition)
+    private void DragObject(Vector3 deltaPosition)
     {
-        Camera cam = Camera.main;
-        transform.position = cam.ScreenToWorldPoint(Input.GetTouch(0).position);
-        transform.position = new Vector3(transform.position.x, transform.position.y, -0.0001f);
+        transform.position += deltaPosition;
     }
 }

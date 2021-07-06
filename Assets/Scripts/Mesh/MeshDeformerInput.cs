@@ -27,7 +27,7 @@ public class MeshDeformerInput : MonoBehaviour {
 			MeshDeformer deformer = hit.collider.GetComponent<MeshDeformer>();
 			if (deformer) {
 				Vector3 point = hit.point;
-				point += hit.normal * forceOffset;
+				point += hit.normal;
 				deformer.AddDeformingForce(point, force);
 			}
 		}
