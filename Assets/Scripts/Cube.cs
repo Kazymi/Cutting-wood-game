@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class Cube : MonoBehaviour
@@ -15,7 +13,6 @@ public class Cube : MonoBehaviour
     private void Awake()
     {
         Generate();
-        gameObject.AddComponent<BoxCollider>().size = new Vector3(xSize, ySize, zSize);
     }
 
     private void Generate()

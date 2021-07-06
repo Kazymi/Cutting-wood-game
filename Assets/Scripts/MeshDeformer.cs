@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshFilter),typeof(MeshCollider))]
 public class MeshDeformer : MonoBehaviour
 {
     private Mesh _deformingMesh;
     private Vector3[] _originalVertices;
     private Vector3[] _displacedVertices;
     private Vector3[] _vertexVelocities;
-
+    private MeshCollider _meshCollider;
+    
     private void Start()
     {
+        _meshCollider = GetComponent<MeshCollider>();
         _deformingMesh = GetComponent<MeshFilter>().mesh;
         _originalVertices = _deformingMesh.vertices;
         _displacedVertices = new Vector3[_originalVertices.Length];
@@ -22,12 +24,15 @@ public class MeshDeformer : MonoBehaviour
         }
 
         _vertexVelocities = new Vector3[_originalVertices.Length];
+        UpdateMesh();
     }
 
-    private void Update()
+    private void UpdateMesh()
     {
         _deformingMesh.vertices = _displacedVertices;
         _deformingMesh.RecalculateNormals();
+        _meshCollider.sharedMesh = null;
+        _meshCollider.sharedMesh = _deformingMesh;
     }
 
     public void AddDeformingForce(Vector3 point, float force)
@@ -71,6 +76,7 @@ public class MeshDeformer : MonoBehaviour
             if (_displacedVertices[i].y == maxY || _displacedVertices[i].y > meanValue) _displacedVertices[i].y -= force;
             if (_displacedVertices[i].y == minY || _displacedVertices[i].y < meanValue) _displacedVertices[i].y += force;
         }
+        UpdateMesh();
     }
 
     private void UpdateVertex(int i)
