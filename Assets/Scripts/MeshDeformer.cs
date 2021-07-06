@@ -78,11 +78,4 @@ public class MeshDeformer : MonoBehaviour
         }
         UpdateMesh();
     }
-
-    private void UpdateVertex(int i)
-    {
-        Vector3 velocity = _vertexVelocities[i];
-        _vertexVelocities[i] = Vector3.zero;
-        _displacedVertices[i] += velocity * Time.deltaTime;
-    }
 }
