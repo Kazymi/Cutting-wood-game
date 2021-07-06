@@ -11,7 +11,7 @@ public class MeshDeformer : MonoBehaviour
     private Vector3[] _displacedVertices;
     private Vector3[] _vertexVelocities;
     private MeshCollider _meshCollider;
-    
+    private List<MeshVectors> _meshVectorsList;
     private void Start()
     {
         _meshCollider = GetComponent<MeshCollider>();
@@ -25,8 +25,37 @@ public class MeshDeformer : MonoBehaviour
 
         _vertexVelocities = new Vector3[_originalVertices.Length];
         UpdateMesh();
+        VectorsInitialize();
     }
 
+    private void VectorsInitialize()
+    {
+        _meshVectorsList = new List<MeshVectors>();
+        for (int i = 0; i < _displacedVertices.Length; i++)
+        {
+            var vertical = GetVerticalByXPosition(_displacedVertices[i].x);
+            if (vertical == null)
+            {
+                vertical = new MeshVectors(_displacedVertices[i].x);
+                _meshVectorsList.Add(vertical);
+            }
+            vertical.AddVector(_displacedVertices[i],i);
+        }
+
+        foreach (var i in _meshVectorsList)
+        {
+          i.UpdateState();
+        }
+    }
+
+    private MeshVectors GetVerticalByXPosition(float x)
+    {
+        foreach (var i in _meshVectorsList)
+        {
+            if (i.XPosition == x) return i;
+        }
+        return null;
+    }
     private void UpdateMesh()
     {
         _deformingMesh.vertices = _displacedVertices;
@@ -37,45 +66,37 @@ public class MeshDeformer : MonoBehaviour
 
     public void AddDeformingForce(Vector3 point, float force)
     {
-        var xs = new float[_displacedVertices.Length];
-        var ys = new float[_displacedVertices.Length];
-        for (int i = 0; i < _displacedVertices.Length; i++)
+        var xs = new List<float>();
+        foreach (var i in _meshVectorsList)
         {
-            xs[i] = _displacedVertices[i].x;
-            ys[i] = _displacedVertices[i].y;
+            xs.Add(i.XPosition);
         }
-
         var closestX = xs.OrderBy(v => Math.Abs((long) v - point.x)).First();
-        var closestY = ys.OrderBy(v => Math.Abs((long) v - point.y)).First();
-        SetDeforming(closestX,closestY, force);
+        SetDeforming(closestX, force);
     }
 
-    private void SetDeforming(float pointX, float pointY, float force)
+    private void SetDeforming(float pointX, float force)
     {
         force = force * Time.deltaTime;
         var idCurrentVectors = new List<int>();
-        for (int i = 0; i < _displacedVertices.Length; i++)
+        var meshVector = GetVerticalByXPosition(pointX);
+        if(meshVector == null) return;
+
+        foreach (var i in meshVector.Vectors)
         {
-            if (_displacedVertices[i].x == pointX && pointY == _displacedVertices[i].y)
-            {
-                idCurrentVectors.Add(i);
-            }
+            idCurrentVectors.Add(i.ID);
         }
 
-        var minY = 10000f;
-        var maxY = 0f;
-        
+        var meanValue = meshVector.maxY / 2;
         foreach (var i in idCurrentVectors)
         {
-            if (minY > _displacedVertices[i].y) minY = _displacedVertices[i].y;
-            if (maxY < _displacedVertices[i].y) maxY = _displacedVertices[i].y;
+            if (_displacedVertices[i].y == meshVector.maxY || _displacedVertices[i].y > meanValue) _displacedVertices[i].y -= force;
+            if (_displacedVertices[i].y == meshVector.minY || _displacedVertices[i].y < meanValue) _displacedVertices[i].y += force;
         }
 
-        var meanValue = maxY / 2;
-        foreach (var i in idCurrentVectors)
+        foreach (var i in meshVector.Vectors)
         {
-            if (_displacedVertices[i].y == maxY || _displacedVertices[i].y > meanValue) _displacedVertices[i].y -= force;
-            if (_displacedVertices[i].y == minY || _displacedVertices[i].y < meanValue) _displacedVertices[i].y += force;
+            i.Vector3 = _displacedVertices[i.ID];
         }
         UpdateMesh();
     }
