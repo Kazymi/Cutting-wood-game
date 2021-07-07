@@ -2,29 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeshVectors
+public class СircleVertex
 {
-    public float XPosition;
-    public List<ClassVector> Vectors = new List<ClassVector>();
+    private float _xPosition;
+    private List<Vertical> _vertex = new List<Vertical>();
+    private Vector3 _positionObject;
+    private MeshDeformer _deformer;
+    public float XPosition => _xPosition;
+    public List<Vertical> Vertex => _vertex;
 
-    public float minY = 9999f;
-    public float maxY = 0f;
-    public MeshVectors(float xPosition)
+    public СircleVertex(float xPosition,Vector3 positionObject,MeshDeformer deformer)
     {
-        XPosition = xPosition;
+        _deformer = deformer;
+        _xPosition = xPosition;
+        _positionObject = positionObject;
     }
 
-    public void AddVector(Vector3 vector3, int id)
+    public void AddVector(Vector3 vector3, int id,Vector3 scaleCube)
     {
-        Vectors.Add(new ClassVector(id,vector3));
+        _vertex.Add(new Vertical(id,vector3,scaleCube,_deformer));
     }
 
-    public void UpdateState()
+    public void StartDeformation(float force)
     {
-        foreach (var i in Vectors)
+        for (int i = 0; i < _vertex.Count; i++)
         {
-            if (minY > i.Vector3.y) minY = i.Vector3.y;
-            if (maxY < i.Vector3.y) maxY = i.Vector3.y;
+            _vertex[i].Deformation(force,true);
         }
     }
 }

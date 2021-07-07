@@ -1,18 +1,23 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class Cube : MonoBehaviour
+public class CubeMain : MonoBehaviour
 {
+    [SerializeField] private MeshDeformer meshDeformer;
+    [SerializeField] private bool autoGeneration;
     [SerializeField] private int xSize;
     [SerializeField] private int ySize;
     [SerializeField] private int zSize;
     private Mesh _mesh;
     private Vector3[] _vertices;
     private Vector3[] _deformationVectors;
+    public Vector3 Scale => new Vector3(xSize, ySize, zSize);
 
     private void Awake()
     {
-        Generate();
+        if (autoGeneration)
+            Generate();
     }
 
     private void Generate()
@@ -21,6 +26,20 @@ public class Cube : MonoBehaviour
         _mesh.name = "Procedural Cube";
         CreateVertices();
         CreateTriangles();
+    }
+
+    public void Generate(List<Vertical> allverticals,Vector3[] currentVertical)
+    {
+        autoGeneration = false;
+        _mesh.vertices = currentVertical;
+        _mesh.RecalculateNormals();
+        var idDeformationVerticals = new List<int>();
+        foreach (var vertical in allverticals)
+        {
+            idDeformationVerticals.Add(vertical.ID);
+        }
+        StartCoroutine(meshDeformer.DeformVertexExceptCurrent(idDeformationVerticals));
+        var i = gameObject.AddComponent<Rigidbody>();
     }
 
     private void CreateVertices()
@@ -33,7 +52,6 @@ public class Cube : MonoBehaviour
             (ySize - 1) * (zSize - 1)) * 2;
         _vertices = new Vector3[cornerVertices + edgeVertices + faceVertices];
         _deformationVectors = new Vector3[cornerVertices + edgeVertices + faceVertices];
-        //WaitForSeconds wait = new WaitForSeconds(0f);
         int v = 0;
         for (int y = 0; y <= ySize; y++)
         {
@@ -41,23 +59,22 @@ public class Cube : MonoBehaviour
             {
                 _vertices[v++] = new Vector3(x, y, 0);
                 _deformationVectors[v] = new Vector3(y, x, 0);
-               // yield return wait;
             }
+
             for (int z = 1; z <= zSize; z++)
             {
                 _vertices[v++] = new Vector3(xSize, y, z);
-              // yield return wait;
             }
+
             for (int x = xSize - 1; x >= 0; x--)
             {
                 _vertices[v++] = new Vector3(x, y, zSize);
-                _deformationVectors[v] += new Vector3(0, 0, x); 
-               // yield return wait;
+                _deformationVectors[v] += new Vector3(0, 0, x);
             }
+
             for (int z = zSize - 1; z > 0; z--)
             {
                 _vertices[v++] = new Vector3(0, y, z);
-              //  yield return wait;
             }
         }
 
@@ -75,6 +92,12 @@ public class Cube : MonoBehaviour
             {
                 _vertices[v++] = new Vector3(x, 0, z);
             }
+        }
+
+        for (int i = 0; i < _vertices.Length; i++)
+        {
+            _vertices[i] += transform.position;
+            _deformationVectors[i] += transform.position;
         }
 
         _mesh.vertices = _vertices;
@@ -181,17 +204,6 @@ public class Cube : MonoBehaviour
 
         return t;
     }
-
-    // private void OnDrawGizmos()
-    // {
-    //     if (_vertices == null) {
-    //         return;
-    //     }
-    //     Gizmos.color = Color.black;
-    //     for (int i = 0; i < _vertices.Length; i++) {
-    //         Gizmos.DrawSphere(_vertices[i], 0.1f);
-    //     }
-    // }
 
     private static int SetQuad(int[] triangles, int i, int v00, int v10, int v01, int v11)
     {
