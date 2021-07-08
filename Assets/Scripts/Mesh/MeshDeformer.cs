@@ -1,27 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
 public class MeshDeformer : MonoBehaviour
 {
-    [SerializeField] private GameObject splitCube;
     [SerializeField] private bool unlockDeform;
-    [SerializeField] private CubeMain cubeMain;
+    //[SerializeField] private CubeMain cubeMain;
 
     private Mesh _deformingMesh;
     private Vector3[] _originalVertices;
     private Vector3[] _displacedVertices;
     private MeshCollider _meshCollider;
-    private List<СircleVertex> _meshVectorsList;
+    private List<CircleVertex> _meshVectorsList;
     private bool _unlockSplit = true;
 
+    public List<CircleVertex> CircleVertex => _meshVectorsList;
     private void Start()
     {
         _meshCollider = GetComponent<MeshCollider>();
-        _deformingMesh = GetComponent<MeshFilter>().mesh;
+        _deformingMesh = GetComponent<MeshFilter>().sharedMesh;
+        Debug.Log(_deformingMesh.vertices.Length);
+        foreach (var VARIABLE in _deformingMesh.vertices)
+        {
+            Debug.Log(VARIABLE);
+        }
+        _deformingMesh.RecalculateNormals();
         _originalVertices = _deformingMesh.vertices;
         _displacedVertices = new Vector3[_originalVertices.Length];
         for (int i = 0; i < _originalVertices.Length; i++)
@@ -31,6 +35,7 @@ public class MeshDeformer : MonoBehaviour
 
         UpdateMesh();
         VectorsInitialize();
+        Debug.Log("++");
     }
 
     public IEnumerator DeformVertexExceptCurrent(List<int> vertices)
@@ -59,21 +64,21 @@ public class MeshDeformer : MonoBehaviour
 
     private void VectorsInitialize()
     {
-        _meshVectorsList = new List<СircleVertex>();
+        _meshVectorsList = new List<CircleVertex>();
         for (int i = 0; i < _displacedVertices.Length; i++)
         {
             var vertical = GetVerticalByXPosition(_displacedVertices[i].x);
             if (vertical == null)
             {
-                vertical = new СircleVertex(_displacedVertices[i].x, transform.position, this);
+                vertical = new CircleVertex(_displacedVertices[i].x, this);
                 _meshVectorsList.Add(vertical);
             }
 
-            vertical.AddVector(_displacedVertices[i], i, cubeMain.Scale);
+            vertical.AddVector(_displacedVertices[i], i);
         }
     }
 
-    private СircleVertex GetVerticalByXPosition(float x)
+    public CircleVertex GetVerticalByXPosition(float x)
     {
         foreach (var i in _meshVectorsList)
         {
@@ -100,7 +105,6 @@ public class MeshDeformer : MonoBehaviour
 
     private void SetDeforming(float pointX, float force)
     {
-        force = force * Time.deltaTime;
         var meshVector = GetVerticalByXPosition(pointX);
         if (meshVector == null) return;
         meshVector.StartDeformation(force);
@@ -108,7 +112,15 @@ public class MeshDeformer : MonoBehaviour
         {
             _displacedVertices[i.ID] = i.Vector3;
         }
-
+        UpdateMesh();
+    } 
+    public void SetDeforming(CircleVertex circleVertex, float force)
+    {
+        circleVertex.StartDeformation(force);
+        foreach (var i in circleVertex.Vertex)
+        {
+            _displacedVertices[i.ID] = i.Vector3;
+        }
         UpdateMesh();
     }
 
@@ -173,5 +185,14 @@ public class MeshDeformer : MonoBehaviour
         _unlockSplit = false;
         yield return new WaitForSeconds(1f);
         _unlockSplit = true;
+    }
+    private void OnDrawGizmos () {
+        if (_displacedVertices == null) {
+            return;
+        }
+        Gizmos.color = Color.black;
+        for (int i = 0; i < _displacedVertices.Length; i++) {
+            Gizmos.DrawSphere(_displacedVertices[i], 0.1f);
+        }
     }
 }
