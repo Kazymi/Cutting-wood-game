@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,26 +17,47 @@ public class MeshDeformer : MonoBehaviour
     private bool _unlockSplit = true;
 
     public List<CircleVertex> CircleVertex => _meshVectorsList;
+
     private void Start()
     {
         _meshCollider = GetComponent<MeshCollider>();
         _deformingMesh = GetComponent<MeshFilter>().sharedMesh;
+
         Debug.Log(_deformingMesh.vertices.Length);
-        foreach (var VARIABLE in _deformingMesh.vertices)
+
+        _originalVertices = new Vector3[_deformingMesh.vertices.Length];
+        _displacedVertices = new Vector3[_deformingMesh.vertices.Length];
+
+        for (var i = 0; i < _deformingMesh.vertices.Length; i++)
         {
-            Debug.Log(VARIABLE);
+            var vertexWorldPosition = transform.TransformPoint(_deformingMesh.vertices[i]);
+            _originalVertices[i] = vertexWorldPosition;
+            _displacedVertices[i] = vertexWorldPosition;
         }
-        _deformingMesh.RecalculateNormals();
-        _originalVertices = _deformingMesh.vertices;
-        _displacedVertices = new Vector3[_originalVertices.Length];
-        for (int i = 0; i < _originalVertices.Length; i++)
-        {
-            _displacedVertices[i] = _originalVertices[i];
-        }
+
+        // _deformingMesh.RecalculateNormals();
+        // _originalVertices = _deformingMesh.vertices;
+        // _displacedVertices = new Vector3[_originalVertices.Length];
+        // for (int i = 0; i < _originalVertices.Length; i++)
+        // {
+        // _displacedVertices[i] = localToWorld.MultiplyPoint3x4(_originalVertices[i]);
+        // _displacedVertices[i] = _originalVertices[i];
+        // Debug.Log(_displacedVertices[i]);
+        // }
 
         UpdateMesh();
         VectorsInitialize();
         Debug.Log("++");
+    }
+
+    private void OnApplicationQuit()
+    {
+        for (int i = 0; i < _originalVertices.Length; i++)
+        {
+            _originalVertices[i] = transform.InverseTransformPoint(_originalVertices[i]);
+        }
+        _deformingMesh.vertices = _originalVertices;
+        _deformingMesh.RecalculateNormals();
     }
 
     public IEnumerator DeformVertexExceptCurrent(List<int> vertices)
@@ -90,7 +112,13 @@ public class MeshDeformer : MonoBehaviour
 
     private void UpdateMesh()
     {
-        _deformingMesh.vertices = _displacedVertices;
+        var vertices = new Vector3[_displacedVertices.Length];
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = transform.InverseTransformPoint(_displacedVertices[i]);
+        }
+
+        _deformingMesh.vertices = vertices;
         _deformingMesh.RecalculateNormals();
         _meshCollider.sharedMesh = null;
         _meshCollider.sharedMesh = _deformingMesh;
@@ -99,7 +127,7 @@ public class MeshDeformer : MonoBehaviour
     public void AddDeformingForce(Vector3 point, float force)
     {
         if (unlockDeform == false) return;
-        var closestX = (int) point.x;
+        var closestX = (int)point.x;
         SetDeforming(closestX, force);
     }
 
@@ -113,7 +141,8 @@ public class MeshDeformer : MonoBehaviour
             _displacedVertices[i.ID] = i.Vector3;
         }
         UpdateMesh();
-    } 
+    }
+
     public void SetDeforming(CircleVertex circleVertex, float force)
     {
         circleVertex.StartDeformation(force);
@@ -165,7 +194,7 @@ public class MeshDeformer : MonoBehaviour
         if (_unlockSplit == false) return;
         GameObject newGameObject = Instantiate(gameObject);
         var i = newGameObject.GetComponent<CubeMain>();
-        i.Generate(splitCirclesId,_displacedVertices);
+        i.Generate(splitCirclesId, _displacedVertices);
         StartCoroutine(Timer());
     }
 
@@ -186,12 +215,16 @@ public class MeshDeformer : MonoBehaviour
         yield return new WaitForSeconds(1f);
         _unlockSplit = true;
     }
-    private void OnDrawGizmos () {
-        if (_displacedVertices == null) {
+
+    private void OnDrawGizmos()
+    {
+        if (_displacedVertices == null)
+        {
             return;
         }
         Gizmos.color = Color.black;
-        for (int i = 0; i < _displacedVertices.Length; i++) {
+        for (int i = 0; i < _displacedVertices.Length; i++)
+        {
             Gizmos.DrawSphere(_displacedVertices[i], 0.1f);
         }
     }
