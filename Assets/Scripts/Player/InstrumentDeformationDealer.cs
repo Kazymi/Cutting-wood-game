@@ -46,8 +46,6 @@ public class InstrumentDeformationDealer : MonoBehaviour
                 }
             }
         }
-
-        Debug.Log(circleInRadius.Count);
         foreach (var i in circleInRadius)
         {
             _meshDeformer.SetDeforming(i,force);

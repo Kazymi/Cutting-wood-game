@@ -15,41 +15,59 @@ public class MeshDeformer : MonoBehaviour
     private MeshCollider _meshCollider;
     private List<CircleVertex> _meshVectorsList;
     private bool _unlockSplit = true;
-
+    private bool _initialized = false;
     public List<CircleVertex> CircleVertex => _meshVectorsList;
 
     private void Start()
     {
-        _meshCollider = GetComponent<MeshCollider>();
-        _deformingMesh = GetComponent<MeshFilter>().sharedMesh;
+        if(_initialized) return;
+        Initialize();
+    }
 
-        Debug.Log(_deformingMesh.vertices.Length);
+    private void Initialize()
+    {
+        if(_initialized) return;
+        _meshCollider = GetComponent<MeshCollider>();
+        _deformingMesh = GetComponent<MeshFilter>().mesh;
 
         _originalVertices = new Vector3[_deformingMesh.vertices.Length];
         _displacedVertices = new Vector3[_deformingMesh.vertices.Length];
-
         for (var i = 0; i < _deformingMesh.vertices.Length; i++)
         {
             var vertexWorldPosition = transform.TransformPoint(_deformingMesh.vertices[i]);
             _originalVertices[i] = vertexWorldPosition;
             _displacedVertices[i] = vertexWorldPosition;
         }
-
-        // _deformingMesh.RecalculateNormals();
-        // _originalVertices = _deformingMesh.vertices;
-        // _displacedVertices = new Vector3[_originalVertices.Length];
-        // for (int i = 0; i < _originalVertices.Length; i++)
-        // {
-        // _displacedVertices[i] = localToWorld.MultiplyPoint3x4(_originalVertices[i]);
-        // _displacedVertices[i] = _originalVertices[i];
-        // Debug.Log(_displacedVertices[i]);
-        // }
-
         UpdateMesh();
         VectorsInitialize();
-        Debug.Log("++");
     }
-
+    public void Generate(Vector3[] currentVertical, List<float> def)
+    {
+        Initialize();
+        _initialized = true;
+        _deformingMesh.vertices = currentVertical;
+        StartCoroutine(DeformVertexExceptCurrent(def));
+    }
+    
+    public void Generate(List<float> circleVertices)
+    {
+        Initialize();
+        VectorsInitialize();
+        for (int i = 0; i < circleVertices.Count; i++)
+        {
+            _meshVectorsList[i].Initialize(circleVertices[i]);
+        }
+        _initialized = true;
+        foreach (var circle in _meshVectorsList)
+        {
+            foreach (var vertex in circle.Vertex)
+            {
+                _displacedVertices[vertex.ID] = vertex.Vector3;
+            }
+        }
+        UpdateMesh();
+    }
+    
     private void OnApplicationQuit()
     {
         for (int i = 0; i < _originalVertices.Length; i++)
@@ -60,27 +78,19 @@ public class MeshDeformer : MonoBehaviour
         _deformingMesh.RecalculateNormals();
     }
 
-    public IEnumerator DeformVertexExceptCurrent(List<int> vertices)
+    public IEnumerator DeformVertexExceptCurrent(List<float> vertices)
     {
+        Debug.Log(vertices.Count);
         yield return new WaitForSeconds(0.1f);
-        var deformVertexes = new List<Vertical>();
-        foreach (var circle in _meshVectorsList)
+        foreach (var circle in vertices)
         {
-            foreach (var idVertex in circle.Vertex)
+            var i =GetVerticalByXPosition(circle);
+            i.StartDeformation(10000,false);
+            foreach (var vertex in i.Vertex)
             {
-                if (vertices.Contains(idVertex.ID))
-                {
-                    deformVertexes.Add(idVertex);
-                }
+                _displacedVertices[vertex.ID] = vertex.Vector3;
             }
         }
-
-        foreach (var vertex in deformVertexes)
-        {
-            vertex.Deformation(10000, false);
-            _displacedVertices[vertex.ID] = vertex.Vector3;
-        }
-
         UpdateMesh();
     }
 
@@ -89,10 +99,11 @@ public class MeshDeformer : MonoBehaviour
         _meshVectorsList = new List<CircleVertex>();
         for (int i = 0; i < _displacedVertices.Length; i++)
         {
-            var vertical = GetVerticalByXPosition(_displacedVertices[i].x);
+            var currentX = Mathf.Round(_displacedVertices[i].x);
+            var vertical = GetVerticalByXPosition(currentX);
             if (vertical == null)
             {
-                vertical = new CircleVertex(_displacedVertices[i].x, this);
+                vertical = new CircleVertex(currentX, this);
                 _meshVectorsList.Add(vertical);
             }
 
@@ -120,8 +131,6 @@ public class MeshDeformer : MonoBehaviour
 
         _deformingMesh.vertices = vertices;
         _deformingMesh.RecalculateNormals();
-        _meshCollider.sharedMesh = null;
-        _meshCollider.sharedMesh = _deformingMesh;
     }
 
     public void AddDeformingForce(Vector3 point, float force)
@@ -135,7 +144,7 @@ public class MeshDeformer : MonoBehaviour
     {
         var meshVector = GetVerticalByXPosition(pointX);
         if (meshVector == null) return;
-        meshVector.StartDeformation(force);
+        meshVector.StartDeformation(force,true);
         foreach (var i in meshVector.Vertex)
         {
             _displacedVertices[i.ID] = i.Vector3;
@@ -145,7 +154,8 @@ public class MeshDeformer : MonoBehaviour
 
     public void SetDeforming(CircleVertex circleVertex, float force)
     {
-        circleVertex.StartDeformation(force);
+        if(unlockDeform == false) return;
+        circleVertex.StartDeformation(force,true);
         foreach (var i in circleVertex.Vertex)
         {
             _displacedVertices[i.ID] = i.Vector3;
@@ -155,25 +165,18 @@ public class MeshDeformer : MonoBehaviour
 
     public void SplitMesh(float PointX)
     {
-        var firstMesh = new List<Vertical>();
-        var secondMesh = new List<Vertical>();
+        if (_unlockSplit == false) return;
+        var firstMesh = new List<float>();
+        var secondMesh = new List<float>();
         foreach (var i in _meshVectorsList)
         {
             if (i.XPosition >= PointX)
             {
-                foreach (var vertex in i.Vertex)
-                {
-                    if (vertex.Magnitude > 0)
-                        firstMesh.Add(vertex);
-                }
+                if(i.Magnitude > 0) firstMesh.Add(i.XPosition);
             }
             else
             {
-                foreach (var vertex in i.Vertex)
-                {
-                    if (vertex.Magnitude > 0)
-                        secondMesh.Add(vertex);
-                }
+                if(i.Magnitude > 0) secondMesh.Add(i.XPosition);
             }
         }
 
@@ -187,26 +190,22 @@ public class MeshDeformer : MonoBehaviour
             Split(secondMesh);
             Splited(firstMesh);
         }
-    }
-
-    private void Split(List<Vertical> splitCirclesId)
-    {
-        if (_unlockSplit == false) return;
-        GameObject newGameObject = Instantiate(gameObject);
-        var i = newGameObject.GetComponent<CubeMain>();
-        i.Generate(splitCirclesId, _displacedVertices);
         StartCoroutine(Timer());
     }
 
-    private void Splited(List<Vertical> splitCirclesId)
+    private void Split(List<float> splitCirclesId)
     {
-        List<int> Allverticals = new List<int>();
-        foreach (var i in splitCirclesId)
-        {
-            Allverticals.Add(i.ID);
-        }
+        GameObject newGameObject = Instantiate(gameObject);
+        var i = newGameObject.GetComponent<MeshDeformer>();
+        i.Generate(_displacedVertices,splitCirclesId);
+        newGameObject.AddComponent<Rigidbody>();
+        Destroy(newGameObject,4f);
+        i.unlockDeform = false;
+    }
 
-        StartCoroutine(DeformVertexExceptCurrent(Allverticals));
+    private void Splited(List<float> splitCirclesId)
+    {
+        StartCoroutine(DeformVertexExceptCurrent(splitCirclesId));
     }
 
     private IEnumerator Timer()
