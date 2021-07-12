@@ -3,9 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New damage dealer", menuName = "Damage dealer")]
 public class DamageDealerConfiguration : ScriptableObject
 {
-    [SerializeField] private float radius;
+    [SerializeField] private AnimationCurve _animationCurve;
     [SerializeField] private float damage;
 
-    public float Radius => radius;
+    public AnimationCurve AnimationCurve => _animationCurve;
     public float Damage => damage;
 }

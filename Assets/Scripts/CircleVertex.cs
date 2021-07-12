@@ -41,7 +41,6 @@ public class CircleVertex
     {
         if (magnitude <= 0) return;
         var startMagnitude = _motionVector3 * force * Time.deltaTime;
-        Debug.Log(startMagnitude);
         magnitude -= startMagnitude.magnitude;
         if (magnitude <= 0)
         {

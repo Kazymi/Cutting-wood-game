@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,15 +32,17 @@ public class InstrumentDeformationDealer : MonoBehaviour
     private void CheckRadiusX()
     {
         var circleInRadius = new List<CircleVertex>();
-        var minX = transform.position.x - damageDealerConfiguration.Radius / 2;
-        var maxX = transform.position.x + damageDealerConfiguration.Radius / 2;
+        var minX = damageDealerConfiguration.AnimationCurve.keys[damageDealerConfiguration.AnimationCurve.length-1].value+transform.position.x;
+        var maxX = transform.position.x - damageDealerConfiguration.AnimationCurve.keys[damageDealerConfiguration.AnimationCurve.length-1].value;
         foreach (var _xPosition in _xPositions)
         {
-            if (_xPosition < maxX && _xPosition > minX)
+            if (_xPosition > maxX && _xPosition < minX)
             {
+                Debug.Log($" {maxX} + {minX}");
                 var i = meshDeformer.GetVerticalByXPosition(_xPosition);
-                if (CheckRadiusY(i))
+                if (CheckRadiusY(i,_xPosition))
                 {
+                    
                     circleInRadius.Add(i);
                 }
             }
@@ -50,24 +53,18 @@ public class InstrumentDeformationDealer : MonoBehaviour
         }
     }
 
-    private bool CheckRadiusY(CircleVertex circleVertex)
+    private bool CheckRadiusY(CircleVertex circleVertex, float X)
     {
-        var minY = transform.position.y - damageDealerConfiguration.Radius / 2;
-        var maxY = transform.position.y + damageDealerConfiguration.Radius / 2;
+        var pos = transform.position.x - X;
+        var y = transform.position.y + damageDealerConfiguration.AnimationCurve.Evaluate(Math.Abs(pos));
         foreach (var vertex in circleVertex.Vertex)
         {
-            if (vertex.Vector3.y < maxY && vertex.Vector3.y > minY)
+            if (vertex.Vector3.y < y)
             {
+                Debug.Log(vertex.Vector3 +$" Y{y} X{X}");
                 return true;
             }
         }
-
         return false;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, damageDealerConfiguration.Radius);
     }
 }

@@ -33,13 +33,7 @@ public class SaveMeshControl : MonoBehaviour
 
     private void Save()
     {
-        var magnitudes = new List<float>();
-        var circle = meshDeformer.CircleVertex;
-        foreach (var VARIABLE in circle)
-        {
-            magnitudes.Add(VARIABLE.Magnitude);
-        }
-        saveSystem.SaveNewCircle(magnitudes);
+        saveSystem.SaveNewCircle(meshDeformer.GetCirclesMagnitudes());
     } 
     private void Delete()
     {

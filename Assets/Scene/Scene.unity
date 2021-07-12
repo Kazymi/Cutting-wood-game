@@ -473,6 +473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   force: 10
   forceOffset: 0.1
+  _cameraMain: {fileID: 0}
 --- !u!1 &175496162
 GameObject:
   m_ObjectHideFlags: 0
@@ -710,7 +711,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 235884751}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.3462467, y: -25, z: 0}
+  m_LocalPosition: {x: 18.88, y: -25, z: 0}
   m_LocalScale: {x: 0.4, y: 5.27, z: 0.4}
   m_Children:
   - {fileID: 1917125108}
@@ -810,6 +811,36 @@ MonoBehaviour:
   compareMeshDeformer: {fileID: 353931739}
   textPercent: {fileID: 1119813326}
   compareButton: {fileID: 2081209616}
+--- !u!1 &418621324
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 418621325}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &418621325
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418621324}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.0104}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1572675317}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &437095447
 GameObject:
   m_ObjectHideFlags: 0
@@ -1740,7 +1771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b33d34cb1df054cb8938c1f97c740a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageDealerConfiguration: {fileID: 11400000, guid: 8b2b3d4eea2dc2b45b7d57fdc7343a2d, type: 2}
+  damageDealerConfiguration: {fileID: 11400000, guid: 90637891cb3ac87459994e575f69a2da, type: 2}
   meshDeformer: {fileID: 1572675313}
 --- !u!1 &1119813324
 GameObject:
@@ -1865,7 +1896,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b33d34cb1df054cb8938c1f97c740a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageDealerConfiguration: {fileID: 11400000, guid: 97371e289206cae46bb94f477a724b13, type: 2}
+  damageDealerConfiguration: {fileID: 11400000, guid: 90637891cb3ac87459994e575f69a2da, type: 2}
   meshDeformer: {fileID: 1572675313}
 --- !u!1001 &1215558374
 PrefabInstance:
@@ -2239,6 +2270,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2534964839176971238, guid: f8d1366f752a35640ae9885e578ea80b, type: 3}
+--- !u!4 &1572675317 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f8d1366f752a35640ae9885e578ea80b, type: 3}
+  m_PrefabInstance: {fileID: 1219370417}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1618356613
 GameObject:
   m_ObjectHideFlags: 0
@@ -2549,6 +2585,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   force: 1000
   forceOffset: 0.1
+  _cameraMain: {fileID: 0}
 --- !u!20 &1867951044
 Camera:
   m_ObjectHideFlags: 0
