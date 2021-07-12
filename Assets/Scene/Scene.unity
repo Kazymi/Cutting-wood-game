@@ -1369,6 +1369,8 @@ MonoBehaviour:
     instrumentButton: {fileID: 988703404}
   - _instrumentDeformationDealer: {fileID: 1114194747}
     instrumentButton: {fileID: 97272227}
+  MainMeshDefor: {fileID: 1572675313}
+  ComparebleMeshDefor: {fileID: 353931739}
 --- !u!1 &862323464
 GameObject:
   m_ObjectHideFlags: 0
@@ -1772,7 +1774,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageDealerConfiguration: {fileID: 11400000, guid: 90637891cb3ac87459994e575f69a2da, type: 2}
-  meshDeformer: {fileID: 1572675313}
+  unlockPolishing: 0
 --- !u!1 &1119813324
 GameObject:
   m_ObjectHideFlags: 0
@@ -1897,7 +1899,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageDealerConfiguration: {fileID: 11400000, guid: 90637891cb3ac87459994e575f69a2da, type: 2}
-  meshDeformer: {fileID: 1572675313}
+  unlockPolishing: 0
 --- !u!1001 &1215558374
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2688,7 +2690,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageDealerConfiguration: {fileID: 11400000, guid: 90637891cb3ac87459994e575f69a2da, type: 2}
-  meshDeformer: {fileID: 1572675313}
+  unlockPolishing: 0
 --- !u!1 &2081209615
 GameObject:
   m_ObjectHideFlags: 0

@@ -146,21 +146,12 @@ public class MeshDeformer : MonoBehaviour
         _deformingMesh.RecalculateNormals();
     }
 
-    public void AddDeformingForce(Vector3 point, float force)
+    public void Polishing(CircleVertex circleVertex,float currentMagnitude)
     {
-        if (unlockDeform == false) return;
-        var closestX = (int)point.x;
-        SetDeforming(closestX, force);
-    }
-
-    private void SetDeforming(float pointX, float force)
-    {
-        var meshVector = GetVerticalByXPosition(pointX);
-        if (meshVector == null) return;
-        meshVector.StartDeformation(force,true);
-        foreach (var i in meshVector.Vertex)
+        circleVertex.Initialize(currentMagnitude);
+        foreach (var vertex in circleVertex.Vertex)
         {
-            _displacedVertices[i.ID] = i.Vector3;
+            _displacedVertices[vertex.ID] = vertex.Vector3;
         }
         UpdateMesh();
     }

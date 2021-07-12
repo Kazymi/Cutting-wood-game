@@ -4,10 +4,13 @@ using UnityEngine;
 public class GameMenu : MonoBehaviour
 {
    [SerializeField] private List<InstrumentButton> _instrumentButtons;
+   [SerializeField] private MeshDeformer MainMeshDefor;
+   [SerializeField] private MeshDeformer ComparebleMeshDefor;
    private void OnEnable()
    {
       foreach (var button in _instrumentButtons)
       {
+         button.InstrumentDeformationDealer.Initialize(MainMeshDefor,ComparebleMeshDefor);
          button.Button.onClick.AddListener(() => SetInstrument(button.InstrumentDeformationDealer));
       }
    }

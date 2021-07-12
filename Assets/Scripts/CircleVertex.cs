@@ -63,7 +63,12 @@ public class CircleVertex
         if (this.magnitude != magnitude)
             for (int i = 0; i < _vertex.Count; i++)
             {
-                _vertex[i].Deformation(this.magnitude - magnitude);
+                if (magnitude >= 0)
+                    _vertex[i].Deformation(this.magnitude - magnitude);
+                else
+                {
+                    _vertex[i].Deformation(this.magnitude + magnitude);
+                }
             }
 
         this.magnitude = magnitude;
