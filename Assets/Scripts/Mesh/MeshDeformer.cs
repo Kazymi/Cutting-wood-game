@@ -1,22 +1,24 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshCollider))]
+[RequireComponent(typeof(MeshFilter))]
 public class MeshDeformer : MonoBehaviour
 {
     [SerializeField] private bool unlockDeform;
-    //[SerializeField] private CubeMain cubeMain;
 
     private Mesh _deformingMesh;
     private Vector3[] _originalVertices;
     private Vector3[] _displacedVertices;
-    private MeshCollider _meshCollider;
     private List<CircleVertex> _meshVectorsList;
     private bool _unlockSplit = true;
     private bool _initialized = false;
     public List<CircleVertex> CircleVertex => _meshVectorsList;
+
+    public bool UnlockDeform
+    {
+        set => unlockDeform = value;
+    }
 
     private void Start()
     {
@@ -24,10 +26,20 @@ public class MeshDeformer : MonoBehaviour
         Initialize();
     }
 
+    public List<float> GetCirclesMagnitudes()
+    {
+        var magnitudes = new List<float>();
+        foreach (var circle in _meshVectorsList)
+        {
+            magnitudes.Add(circle.Magnitude);
+        }
+
+        return magnitudes;
+    }
+    
     private void Initialize()
     {
         if(_initialized) return;
-        _meshCollider = GetComponent<MeshCollider>();
         _deformingMesh = GetComponent<MeshFilter>().mesh;
 
         _originalVertices = new Vector3[_deformingMesh.vertices.Length];
@@ -41,7 +53,8 @@ public class MeshDeformer : MonoBehaviour
         UpdateMesh();
         VectorsInitialize();
     }
-    public void Generate(Vector3[] currentVertical, List<float> def)
+
+    private void Generate(Vector3[] currentVertical, List<float> def)
     {
         Initialize();
         _initialized = true;
@@ -78,7 +91,7 @@ public class MeshDeformer : MonoBehaviour
         _deformingMesh.RecalculateNormals();
     }
 
-    public IEnumerator DeformVertexExceptCurrent(List<float> vertices)
+    private IEnumerator DeformVertexExceptCurrent(List<float> vertices)
     {
         Debug.Log(vertices.Count);
         yield return new WaitForSeconds(0.1f);

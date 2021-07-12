@@ -1,13 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class InstrumentDeformationDealer : MonoBehaviour
 {
-    [SerializeField] private float radius;
-    [SerializeField] private float force;
-    [SerializeField] private MeshDeformer _meshDeformer;
+    [SerializeField] private DamageDealerConfiguration damageDealerConfiguration;
+    [SerializeField] private MeshDeformer meshDeformer;
 
     private List<float> _xPositions = new List<float>();
 
@@ -19,7 +17,7 @@ public class InstrumentDeformationDealer : MonoBehaviour
     private IEnumerator GenerateRadius()
     {
         yield return new WaitForEndOfFrame();
-        foreach (var i in _meshDeformer.CircleVertex)
+        foreach (var i in meshDeformer.CircleVertex)
         {
             _xPositions.Add(i.XPosition);
         }
@@ -33,13 +31,13 @@ public class InstrumentDeformationDealer : MonoBehaviour
     private void CheckRadiusX()
     {
         var circleInRadius = new List<CircleVertex>();
-        var minX = transform.position.x - radius / 2;
-        var maxX = transform.position.x + radius / 2;
+        var minX = transform.position.x - damageDealerConfiguration.Radius / 2;
+        var maxX = transform.position.x + damageDealerConfiguration.Radius / 2;
         foreach (var _xPosition in _xPositions)
         {
             if (_xPosition < maxX && _xPosition > minX)
             {
-                var i = _meshDeformer.GetVerticalByXPosition(_xPosition);
+                var i = meshDeformer.GetVerticalByXPosition(_xPosition);
                 if (CheckRadiusY(i))
                 {
                     circleInRadius.Add(i);
@@ -48,14 +46,14 @@ public class InstrumentDeformationDealer : MonoBehaviour
         }
         foreach (var i in circleInRadius)
         {
-            _meshDeformer.SetDeforming(i,force);
+            meshDeformer.SetDeforming(i,damageDealerConfiguration.Damage);
         }
     }
 
     private bool CheckRadiusY(CircleVertex circleVertex)
     {
-        var minY = transform.position.y - radius / 2;
-        var maxY = transform.position.y + radius / 2;
+        var minY = transform.position.y - damageDealerConfiguration.Radius / 2;
+        var maxY = transform.position.y + damageDealerConfiguration.Radius / 2;
         foreach (var vertex in circleVertex.Vertex)
         {
             if (vertex.Vector3.y < maxY && vertex.Vector3.y > minY)
@@ -70,6 +68,6 @@ public class InstrumentDeformationDealer : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, radius);
+        Gizmos.DrawWireSphere(transform.position, damageDealerConfiguration.Radius);
     }
 }
