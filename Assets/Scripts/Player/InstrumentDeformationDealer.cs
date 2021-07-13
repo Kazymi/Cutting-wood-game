@@ -33,8 +33,7 @@ public class InstrumentDeformationDealer : MonoBehaviour
         polishingSlider?.Initialize(this);
         polishingSlider?.UpdatePolishing();
     }
-
-
+    
     private IEnumerator GenerateRadius()
     {
         yield return new WaitForEndOfFrame();
@@ -43,6 +42,7 @@ public class InstrumentDeformationDealer : MonoBehaviour
             _xPositions.Add(i.XPosition);
         }
     }
+    
     private void Polishing(CircleVertex circleVertexMain, CircleVertex ComparableCircle)
     {
         if(_currentPolishingValue <= 0) return;
