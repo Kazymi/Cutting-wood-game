@@ -35,6 +35,6 @@ public class ComparatorMesh : MonoBehaviour
       }
 
       allPercent /= compareMagnitudes.Count;
-      textPercent.text = allPercent.ToString();
+      textPercent.text =(100 - allPercent).ToString();
    }
 }
