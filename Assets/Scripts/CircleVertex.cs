@@ -48,13 +48,13 @@ public class CircleVertex
             magnitude = 0;
             for (int i = 0; i < _vertex.Count; i++)
             {
-                _vertex[i].Deformation(0);
+                _vertex[i].Deformation(0,false);
             }
         }
         else
             for (int i = 0; i < _vertex.Count; i++)
             {
-                _vertex[i].Deformation(startMagnitude.magnitude);
+                _vertex[i].Deformation(startMagnitude.magnitude,false);
             }
     }
 
@@ -64,10 +64,10 @@ public class CircleVertex
             for (int i = 0; i < _vertex.Count; i++)
             {
                 if (magnitude >= 0)
-                    _vertex[i].Deformation(this.magnitude - magnitude);
+                    _vertex[i].Deformation(this.magnitude - magnitude, true);
                 else
                 {
-                    _vertex[i].Deformation(this.magnitude + magnitude);
+                    _vertex[i].Deformation(this.magnitude + magnitude, true);
                 }
             }
 

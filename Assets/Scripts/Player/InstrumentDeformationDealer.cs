@@ -2,17 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class InstrumentDeformationDealer : MonoBehaviour
 {
     [SerializeField] private DamageDealerConfiguration damageDealerConfiguration;
     [SerializeField] private bool unlockPolishing;
+    [SerializeField] private PolishingSlider polishingSlider;
 
+    private float _currentPolishingValue;
     private MeshDeformer _firshMeshDeformer;
     private MeshDeformer _SecondMeshDeformer;
     private List<float> _xPositions = new List<float>();
 
+    public float CurrentPolishingValueBySlider => _currentPolishingValue/damageDealerConfiguration.MaxPolishing;
     private void Start()
     {
         StartCoroutine(GenerateRadius());
@@ -27,6 +29,9 @@ public class InstrumentDeformationDealer : MonoBehaviour
     {
         _firshMeshDeformer = firstMeshDeformer;
         _SecondMeshDeformer = secondMeshDeformer;
+        _currentPolishingValue = damageDealerConfiguration.MaxPolishing;
+        polishingSlider?.Initialize(this);
+        polishingSlider?.UpdatePolishing();
     }
 
 
@@ -40,6 +45,7 @@ public class InstrumentDeformationDealer : MonoBehaviour
     }
     private void Polishing(CircleVertex circleVertexMain, CircleVertex ComparableCircle)
     {
+        if(_currentPolishingValue <= 0) return;
         var magnitude = circleVertexMain.Magnitude;
         if (magnitude > ComparableCircle.Magnitude)
         {
@@ -52,6 +58,7 @@ public class InstrumentDeformationDealer : MonoBehaviour
             if (magnitude > ComparableCircle.Magnitude) magnitude = ComparableCircle.Magnitude;
         }
         _firshMeshDeformer.Polishing(circleVertexMain,magnitude);
+        polishingSlider?.UpdatePolishing();
     }
 
     private void CheckRadiusX()
@@ -75,6 +82,8 @@ public class InstrumentDeformationDealer : MonoBehaviour
             }
         }
 
+        if (unlockPolishing && circleInRadius.Count != 0)
+            _currentPolishingValue -= damageDealerConfiguration.ReductionPolishing*Time.deltaTime;
         foreach (var i in circleInRadius)
         {
             if (unlockPolishing == false)

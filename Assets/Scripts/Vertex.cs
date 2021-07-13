@@ -17,9 +17,9 @@ public class Vertex
         Debug.DrawLine(vector3, new Vector3(vector3.x, 0, 0), Color.blue, 1000);
     }
 
-    public void Deformation(float force)
+    public void Deformation(float force, bool polishing)
     {
-        if (force <= 0)
+        if (force <= 0 && polishing == false)
         {
             _vector3 = new Vector3(_vector3.x, 0, 0);
             return;

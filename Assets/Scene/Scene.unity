@@ -2690,7 +2690,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageDealerConfiguration: {fileID: 11400000, guid: 90637891cb3ac87459994e575f69a2da, type: 2}
-  unlockPolishing: 0
+  unlockPolishing: 1
 --- !u!1 &2081209615
 GameObject:
   m_ObjectHideFlags: 0
