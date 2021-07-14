@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     public void StartDraw()
     {
         DisableAllInstrument();
+        compareMeshDeformer.gameObject.SetActive(false);
         drawInstrument.UnlockDrawing = true;
     }
 
@@ -38,5 +39,23 @@ public class GameManager : MonoBehaviour
         {
             instrument.gameObject.SetActive(false);
         }
+    }
+    public string Compare()
+    {
+        var mainMagnitudes = mainMeshDeformer.GetCirclesMagnitudes();
+        var compareMagnitudes = compareMeshDeformer.GetCirclesMagnitudes();
+        float allPercent = 0;
+        mainMeshDeformer.UnlockDeform = false;
+      
+        for (var index = 0; index < compareMagnitudes.Count; index++)
+        {
+            var comparePercent = mainMagnitudes[index] > compareMagnitudes[index]
+                ? (mainMagnitudes[index] - compareMagnitudes[index]) / compareMagnitudes[index] * 100
+                : (compareMagnitudes[index] - mainMagnitudes[index]) / compareMagnitudes[index] * 100;
+            allPercent+=comparePercent;
+        }
+
+        allPercent /= compareMagnitudes.Count;
+        return (100 - allPercent).ToString();
     }
 }

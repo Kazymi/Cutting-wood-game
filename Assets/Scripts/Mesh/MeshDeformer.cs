@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshFilter),typeof(MeshCollider))]
 public class MeshDeformer : MonoBehaviour
 {
     [SerializeField] private bool unlockDeform;
 
     private Mesh _deformingMesh;
+    private MeshCollider _meshCollider;
     private Vector3[] _originalVertices;
     private Vector3[] _displacedVertices;
     private List<CircleVertex> _meshVectorsList;
@@ -41,7 +43,8 @@ public class MeshDeformer : MonoBehaviour
     {
         if(_initialized) return;
         _deformingMesh = GetComponent<MeshFilter>().mesh;
-
+        _meshCollider = GetComponent<MeshCollider>();
+        
         _originalVertices = new Vector3[_deformingMesh.vertices.Length];
         _displacedVertices = new Vector3[_deformingMesh.vertices.Length];
         for (var i = 0; i < _deformingMesh.vertices.Length; i++)
@@ -134,7 +137,7 @@ public class MeshDeformer : MonoBehaviour
         return null;
     }
 
-    private void UpdateMesh()
+    public void UpdateMesh()
     {
         var vertices = new Vector3[_displacedVertices.Length];
         for (int i = 0; i < vertices.Length; i++)
@@ -144,6 +147,7 @@ public class MeshDeformer : MonoBehaviour
 
         _deformingMesh.vertices = vertices;
         _deformingMesh.RecalculateNormals();
+        _meshCollider.sharedMesh = _deformingMesh;
     }
 
     public void Polishing(CircleVertex circleVertex,float currentMagnitude)
